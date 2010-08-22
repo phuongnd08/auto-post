@@ -24,4 +24,5 @@ class Config {
   var siteDescriptions: Array[SiteDescription] = _
   var repeatSchedule: RepeatSchedule = _
   var fixedSchedule: Array[String] = _
+  var contents: List[String] = _
 }
