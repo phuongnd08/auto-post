@@ -1,0 +1,34 @@
+--- !!alpha.autoPost.Config
+  credential:
+    username: mrcold
+    password: 12345
+  siteDescriptions:
+    -
+      url: http://raovat.com
+      loginSteps:
+        - openAndWait "/login"
+        - type "username", @username
+        - type "password", @password
+      postSteps:
+        - openAndWait "/post"
+        - type "save_date", "100"
+        - click "category", "1"
+        - type "umbala", @content
+      logoutSteps:
+        - openAndWait "login"
+    -
+      url: http://muaban.vn
+      loginSteps:
+        - openAndWait "/login.php"
+        - type "account", @username
+        - type "password", @password
+        - clickAndWait "submit"
+      postSteps:
+        - openAndWait "new_thread.php"
+        - type "content", @content
+      logoutSteps:
+        - openAndWait "login"
+  repeatSchedule:
+  fixedSchedule:
+    - 05:55
+    - 10:55

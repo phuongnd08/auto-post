@@ -1,0 +1,35 @@
+--- !!alpha.autoPost.Config
+  credential:
+    username: phuongnd08
+    password: 1234567
+  siteDescriptions:
+    -
+      url: http://batdongsan.com
+      loginSteps:
+        - openAndWait "/login"
+        - type "username", @username
+        - type "password", @password
+      postSteps:
+        - openAndWait "/post"
+        - type "save_date", "100"
+        - click "category", "1"
+        - type "umbala", @content
+      logoutSteps:
+        - openAndWait "/logout"
+    -
+      url: http://5giay.vn
+      loginSteps:
+        - openAndWait "/login.php"
+        - type "account", @username
+        - type "password", @password
+        - clickAndWait "submit"
+      postSteps:
+        - openAndWait "new_thread.php"
+        - type "content", @content
+      logoutSteps:
+        - openAndWait "login"
+  repeatSchedule:
+    every: 2 hours
+  fixedSchedule:
+    - 05:55
+    - 10:55

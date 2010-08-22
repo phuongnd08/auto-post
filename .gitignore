@@ -4,3 +4,10 @@ src_managed/
 project/boot/
 /.project
 /.classpath
+.scala_dependencies
+*.iml
+*.ipr
+*.iws
+*.swp
+sbt_project_definition.iml
+
