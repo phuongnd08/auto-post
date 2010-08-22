@@ -11,6 +11,8 @@ class AutoPostProject(info: ProjectInfo) extends DefaultProject(info) with Eclip
   lazy val copyConfig = task {
     FileUtilities.sync(info.projectPath / "configs",
       info.projectPath / "target" / "scala_2.8.0" / "classes" / "configs", log)
+    FileUtilities.sync(info.projectPath / "lib_managed" / "scala_2.8.0" / "test" / "selenium-server-1.0.3-standalone.jar",
+      info.projectPath / "target" / "scala_2.8.0" / "classes" / "tools" / "selenium-server.jar", log)
   }
 
   override def testAction = super.testAction dependsOn (copyConfig)
@@ -18,4 +20,6 @@ class AutoPostProject(info: ProjectInfo) extends DefaultProject(info) with Eclip
   val specs = "org.scalatest" % "scalatest" % "1.2" % "test"
   var snakeYaml = "org.yaml" % "snakeyaml" % "1.7"
   var jodaTime = "joda-time" %"joda-time" % "1.6.1"
+  var seleniumJavaDriver = "org.seleniumhq.selenium.client-drivers" % "selenium-java-client-driver" % "1.0.2"
+  var seleniumServer = "org.seleniumhq.selenium.server" % "selenium-server" % "1.0.3"  % "test" classifier "standalone"
 }

@@ -13,14 +13,6 @@ class YamlLoaderSpec extends Spec with MustMatchers with BeforeAndAfterEach {
     configList = yamlLoader.getConfigs
     sampleConfig = configList(0)
   }
-
-  describe("getJarPath") {
-    it("must return current execution path") {
-      yamlLoader.getJarPath must be === "/home/phuongnd08/code/auto-post/target/scala_2.8.0/classes/"
-    }
-  }
-
-
   describe("getConfigs") {
     it("must return sample config") {
       configList must not be (null)

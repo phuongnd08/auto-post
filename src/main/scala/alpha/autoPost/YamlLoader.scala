@@ -6,12 +6,10 @@ import scala.collection.immutable.List
 import org.yaml.snakeyaml.Yaml
 
 class YamlLoader {
-  def getJarPath = this.getClass.getProtectionDomain.getCodeSource.getLocation.getPath
-
   lazy val yaml = new Yaml
 
   def getConfigs: List[Config] = {
-    val configDir = new File(getJarPath + "/configs")
+    val configDir = new File(Environment.getJarPath + "/configs")
     var list: List[Config] = Nil
     for (f <- configDir.listFiles) {
       if (f.isDirectory)
