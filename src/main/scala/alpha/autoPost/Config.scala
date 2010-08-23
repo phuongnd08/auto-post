@@ -1,6 +1,7 @@
 package alpha.autoPost
 
 import reflect.BeanInfo
+import java.util.Map
 
 /**
  * Created by IntelliJ IDEA.
@@ -13,15 +14,18 @@ import reflect.BeanInfo
 @BeanInfo
 class Credential {var username: String = _; var password: String = _}
 @BeanInfo
-class SiteDescription {var url: String = _; var loginSteps: Array[String] = _; var postSteps: Array[String] = _; var logoutSteps: Array[String] = _}
+class Site{
+  var name: String = _;
+  def url = "http://" + name
+  var loginSteps: Array[Array[String]] = _; var postSteps: Array[Array[String]] = _; var logoutSteps: Array[Array[String]] = _}
 @BeanInfo
 class RepeatSchedule {var every: String = _}
 
 @BeanInfo
 class Config {
   var name: String = _
-  var credential: Credential = _
-  var siteDescriptions: Array[SiteDescription] = _
+  var info: Map[String, String] = _
+  var sites: List[Site] = _
   var repeatSchedule: RepeatSchedule = _
   var fixedSchedule: Array[String] = _
   var contents: List[String] = _

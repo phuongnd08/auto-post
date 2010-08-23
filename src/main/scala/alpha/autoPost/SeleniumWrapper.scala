@@ -3,7 +3,8 @@ package alpha.autoPost
 import java.net.{ServerSocket, URL}
 import java.io._
 import scala.concurrent.ops._
-import com.thoughtworks.selenium.{DefaultSelenium, Selenium}
+import com.thoughtworks.selenium.{CommandProcessor, DefaultSelenium, Selenium}
+import org.azeckoski.reflectutils.ReflectUtils
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,6 +37,7 @@ object SeleniumWrapper {
   }
 
   def startServer {
+    println("def startServer")
     var serverKicked = false;
     while (!serverStarted) {
       if (!serverKicked) {
@@ -51,9 +53,13 @@ object SeleniumWrapper {
     var socket: ServerSocket = null
     try {
       socket = new ServerSocket(SELENIUM_PORT);
+      println("Server is not started")  
       return false
     } catch {
-      case e: IOException => return true
+      case e: IOException => {
+        println("Server started")          
+        return true
+      }
     } finally {
       if (socket != null)
         socket.close()
@@ -67,10 +73,11 @@ object SeleniumWrapper {
     }
   }
 
-  def execute(url: String)(operation: Selenium => Unit) {
+  def execute(url: String)(operation: (CommandProcessor) => Unit) {
     val selenium = new DefaultSelenium(SELENIUM_HOST, SELENIUM_PORT, SELENIUM_DEFAULT_BROWSER, url)
     selenium.start()
-    operation(selenium)
+    val cmdProcessor = ReflectUtils.getInstance.getFieldValue(selenium, "commandProcessor").asInstanceOf[CommandProcessor]
+    operation(cmdProcessor)
     selenium.stop()
   }
 }

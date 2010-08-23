@@ -29,9 +29,9 @@ class SeleniumWrapperSpec extends Spec with MustMatchers {
     try {
       println("Start Testing")
       SeleniumWrapper.execute("http://google.com.vn") {
-        selenium => {
-          selenium.open("/")
-          selenium.getTitle must be("Google")
+        processor => {
+          processor.doCommand("open", Array("/"))
+          processor.getString("getTitle", Array()) must be("Google")
         }
       }
       println("End Testing")
