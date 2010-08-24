@@ -24,6 +24,7 @@ class AutoPostProject(info: ProjectInfo) extends DefaultProject(info) with Eclip
   var seleniumJavaDriver = "org.seleniumhq.selenium.client-drivers" % "selenium-java-client-driver" % "1.0.2"
   var seleniumServer = "org.seleniumhq.selenium.server" % "selenium-server" % "1.0.3"  % "test" classifier "standalone"
   var reflectionUtils = "org.azeckoski" % "reflectutils" % "0.9.14"
+	var mockito = "org.mockito" % "mockito-core" % "1.8.1"
 
-//  def mainClass = "alpha.autoPost.Main"
+  override def mainClass = Some("alpha.autoPost.Main")
 }

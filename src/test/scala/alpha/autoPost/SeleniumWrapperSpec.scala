@@ -1,7 +1,8 @@
 package alpha.autoPost
 
-import org.scalatest.Spec
 import org.scalatest.matchers.MustMatchers
+import org.scalatest.concurrent.Conductor
+import org.scalatest.{BeforeAndAfterEach, Spec}
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,34 +12,73 @@ import org.scalatest.matchers.MustMatchers
  * To change this template use File | Settings | File Templates.
  */
 
-class SeleniumWrapperSpec extends Spec with MustMatchers {
+class SeleniumWrapperSpec extends Spec with MustMatchers with BeforeAndAfterEach{
+  var seleniumWrapper: SeleniumWrapper = _
+
+  override def beforeEach{
+    seleniumWrapper = new SeleniumWrapper
+  }
+
   describe("control selenium server") {
     it("must start stop server properly") {
-      SeleniumWrapper.serverStarted must be(false)
-      SeleniumWrapper.startServer
-      SeleniumWrapper.serverStarted must be(true)
-      SeleniumWrapper.stopServer
-      SeleniumWrapper.serverStarted must be(false)
+      seleniumWrapper.serverStarted must be(false)
+      seleniumWrapper.startServer
+      seleniumWrapper.serverStarted must be(true)
+      seleniumWrapper.stopServer
+      seleniumWrapper.serverStarted must be(false)
     }
   }
 
   describe("run selenium command") {
-    println("Start Server")
-    println("SeleniumWrapper.serverStarted = " + SeleniumWrapper.serverStarted)
-    SeleniumWrapper.startServer
-    try {
-      println("Start Testing")
-      SeleniumWrapper.execute("http://google.com.vn") {
-        processor => {
-          processor.doCommand("open", Array("/"))
-          processor.getString("getTitle", Array()) must be("Google")
+    it("should execute command properly") {
+      println("Start Server")
+      println("SeleniumWrapper.serverStarted = " + seleniumWrapper.serverStarted)
+      seleniumWrapper.startServer
+      try {
+        println("Start Testing")
+        seleniumWrapper.execute("http://google.com.vn") {
+          processor => {
+            processor.doCommand("open", Array("/"))
+            processor.getString("getTitle", Array()) must be("Google")
+          }
         }
+        println("End Testing")
       }
-      println("End Testing")
+      finally {
+        println("Stop Server")
+        seleniumWrapper.stopServer
+      }
     }
-    finally {
-      println("Stop Server")
-      SeleniumWrapper.stopServer
+
+    it("should execute command properly in PARALELL") {
+      println("Start Server")
+      seleniumWrapper.startServer
+      try {
+        val cor = new Conductor
+        cor.thread("google stuff") {
+          seleniumWrapper.execute("http://google.com.vn") {
+            processor => {
+              processor.doCommand("open", Array("/"))
+              processor.getString("getTitle", Array()) must be("Google")
+            }
+          }
+        }
+
+        cor.thread("vnexpess stuff") {
+          seleniumWrapper.execute("http://vnexpress.net") {
+            processor => {
+              processor.doCommand("open", Array("/"))
+              processor.getString("getTitle", Array()) must be("VnExpress - Daily News")
+            }
+          }
+        }
+
+        cor.conduct(100, 20)
+      }
+      finally {
+        println("Stop Server")
+        seleniumWrapper.stopServer
+      }
     }
   }
 }

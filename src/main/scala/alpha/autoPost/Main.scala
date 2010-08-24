@@ -24,6 +24,32 @@ object Main {
     println("Type help to know how to use")
   }
 
+  var configurations: List[Config] = _
+  lazy val yamlLoader: YamlLoader = new YamlLoader
+
+  def loadConfiguration {
+    configurations = yamlLoader.getConfigs
+    println("Configuration loaded")
+  }
+
+  def listConfiguration {
+    println("Available configurations")
+    for (c <- configurations) {
+      println("- " + c.name)
+    }
+  }
+
+  def runConfiguration(name: String) {
+    var c = configurations.find((config) => config.name == name)
+    if (c != None) runConfiguration(c.get)
+    else println("Configuration of name " + name + " not found")
+  }
+
+  def runConfiguration(config: Config) {
+    println("Start executing " + config.name)
+    println("End executing " + config.name)
+  }
+
   def main(args: Array[String]) {
     printHint
     val dataIn = new BufferedReader(new InputStreamReader(System.in))

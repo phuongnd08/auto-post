@@ -14,11 +14,11 @@ import org.azeckoski.reflectutils.ReflectUtils
  * To change this template use File | Settings | File Templates.
  */
 
-object SeleniumWrapper {
+class SeleniumWrapper {
   val SELENIUM_PORT = 4444
   val SELENIUM_HOST = "localhost"
   val SELENIUM_DEFAULT_BROWSER = "*firefox"
-  var RECHECK_INTERVAL = 500
+  var RECHECK_INTERVAL = 1111
 
   protected def spawnJar(jarPath: String) {
     if ((new File(jarPath)).exists) {
