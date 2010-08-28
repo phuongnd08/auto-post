@@ -73,7 +73,7 @@ class SeleniumWrapperSpec extends Spec with MustMatchers with BeforeAndAfterEach
           }
         }
 
-        cor.conduct(100, 20)
+        cor.conduct(100, 60)
       }
       finally {
         println("Stop Server")

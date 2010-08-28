@@ -13,11 +13,11 @@ class YamlLoader {
   protected def readContents(contentsDir: File) = {
     println(contentsDir)
     var contents: List[String] = Nil
-    for (c <- contentsDir.listFiles) {
+    for (c <- contentsDir.listFiles.sortBy(f => f.getName)) {
       if (c.isFile)
         contents = Source.fromFile(c).mkString :: contents
     }
-    contents
+    contents                                                                                                        
   }
 
   protected def readSites(sitesDir: File) = {
@@ -70,6 +70,6 @@ class YamlLoader {
           list = cfg :: list
         }
     }
-    list
+    list.sortBy(cfg => cfg.name)
   }
 }
