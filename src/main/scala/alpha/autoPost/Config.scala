@@ -14,10 +14,14 @@ import java.util.Map
 @BeanInfo
 class Credential {var username: String = _; var password: String = _}
 @BeanInfo
-class Site{
+class Site {
   var name: String = _;
   def url = "http://" + name
-  var loginSteps: Array[Array[String]] = _; var postSteps: Array[Array[String]] = _; var logoutSteps: Array[Array[String]] = _}
+
+  var loginSteps: Array[Array[String]] = _;
+  var postSteps: Array[Array[String]] = _;
+  var logoutSteps: Array[Array[String]] = _
+}
 @BeanInfo
 class RepeatSchedule {var every: String = _}
 
@@ -28,5 +32,13 @@ class Config {
   var sites: List[Site] = _
   var repeatSchedule: RepeatSchedule = _
   var fixedSchedule: Array[String] = _
+
+  def beaters = {
+    var list = List[Beater]()
+    if (repeatSchedule.every != null) {
+    }
+    list
+  }
+
   var contents: List[String] = _
 }
