@@ -2,7 +2,6 @@
   info:
     username: mrcold
     password: 12345
-  repeatSchedule:
   fixedSchedule:
     - 05:55
     - 10:55

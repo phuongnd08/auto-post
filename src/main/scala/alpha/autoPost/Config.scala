@@ -2,6 +2,7 @@ package alpha.autoPost
 
 import reflect.BeanInfo
 import java.util.Map
+import scala.collection.JavaConversions._
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,33 +13,63 @@ import java.util.Map
  */
 
 @BeanInfo
-class Credential {var username: String = _; var password: String = _}
-@BeanInfo
-class Site {
-  var name: String = _;
-  def url = "http://" + name
-
-  var loginSteps: Array[Array[String]] = _;
-  var postSteps: Array[Array[String]] = _;
-  var logoutSteps: Array[Array[String]] = _
-}
-@BeanInfo
-class RepeatSchedule {var every: String = _}
-
-@BeanInfo
-class Config {
+case class Config {
   var name: String = _
   var info: Map[String, String] = _
   var sites: List[Site] = _
-  var repeatSchedule: RepeatSchedule = _
+  var every: String = _
   var fixedSchedule: Array[String] = _
 
-  def beaters = {
-    var list = List[Beater]()
-    if (repeatSchedule.every != null) {
-    }
-    list
+  def siteByName(name: String): Option[Site] = {
+    Option(sites).getOrElse(List[Site]()).find(s => s.name == name)
   }
 
-  var contents: List[String] = _
+  def beaters: List[Beater] = {
+    var list = List[Beater]()
+    if (every != null) {
+      list = new CyclicBeater(Beater.strToInterval(every)) :: list
+    }
+    list ::: fixedSchedule.toList.map(s => new ScheduledBeater(Beater.strToHourAndMinute(s)))
+  }
+
+  def shouldRunNow(lastRun: Long, now: Long): Boolean = {
+    beaters.exists(beater => beater.shouldBeatNow(lastRun, now))
+  }
+
+  var articles: List[Article] = _
+
+  def description: List[String] = {
+    var list = List("Configuration for " + name)
+    if (info != null) {
+      list = " - info" :: list
+      for ((k, v) <- info) {list = ("  + " + k + ": " + v) :: list}
+    } else list = " - no info" :: list
+    if (every != null)
+      list = " - repeated every " + every :: list
+    else list = " - no repeated schedules" :: list
+
+    def getList(name: String, sequence: List[AnyRef])(getText: AnyRef => String): List[String] = {
+      var list: List[String] = Nil
+      if (sequence != null && sequence.length > 0) {
+        list = " - " + name :: list
+        list = sequence.map(item => "  + " + getText(item)).reverse ::: list
+      } else list = " - no " + name :: list
+      list
+    }
+
+    list = getList("fixed schedules", Option(fixedSchedule).getOrElse(Array[String]()).toList) {fs => fs.asInstanceOf[String]} ::: list
+    println("assign sites")
+    list = getList("sites", sites) {s => s.asInstanceOf[Site].name} ::: list
+    list = getList("articles", articles) {a => a.asInstanceOf[Article].title} ::: list
+    list.reverse
+  }
+
+  def briefDescription: List[String] = {
+    var list = List(name)
+    if (sites != null && sites.length > 0) {
+      list = " - sites" :: list
+      sites.foreach(s => list = "  + " + s.name :: list)
+    } else list = " - no sites" :: list
+    list.reverse
+  }
 }

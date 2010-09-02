@@ -33,9 +33,10 @@ class YamlLoaderSpec extends Spec with MustMatchers with BeforeAndAfterEach {
       it("must have correct site descriptions") {
         val sites = sampleConfig.sites
         sites must not be (null)
-        sites must have length (1)
-        val s1 = sites(0)
-        s1.name must be("5giay.vn")
+        sites must have length (2)
+        sites(0).name must be ("batdongsan.com")
+        sites(1).name must be ("5giay.vn")
+        val s1 = sites(1)
         s1.url must be("http://5giay.vn")
         s1.loginSteps must be(Array(
           Array("open", "/index.php", ""),
@@ -57,18 +58,18 @@ class YamlLoaderSpec extends Spec with MustMatchers with BeforeAndAfterEach {
           Array("assertConfirmation", "Bạn có chắc chắn là bạn thoát khỏi diễn đàn không ?", "")))
       }
       it("must have correct repeated schedule") {
-        val rs = sampleConfig.repeatSchedule
-        rs must not be (null)
-        rs.every must be("2 hours")
+        sampleConfig.every must be("2 hours")
       }
       it("must have correct fixed schedule") {
         val fs = sampleConfig.fixedSchedule
         fs must not be (Array("05:55", "10:55"))
       }
-      it("must have correct contents") {
-        var cnt = sampleConfig.contents
-        cnt must not be (null)
-        cnt must be(List("<strong>News No2</strong>", "<strong>News No1</strong>"))
+      it("must have correct articles") {
+        var articles = sampleConfig.articles
+        articles must not be (null)
+        articles must be(List(
+          Article("news_1", "<strong>News No1</strong>"),
+          Article("news_2", "<strong>News No2</strong>")))
       }
     }
   }

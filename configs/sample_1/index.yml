@@ -3,8 +3,7 @@
     username: phuongnd08
     password: 1234567
     title: Morgage news
-  repeatSchedule:
-    every: 2 hours
+  every: 2 hours
   fixedSchedule:
     - 05:55
     - 10:55

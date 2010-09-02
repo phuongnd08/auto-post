@@ -6,23 +6,23 @@ import scala.collection.immutable.List
 import scala.xml.parsing.XhtmlParser
 
 import org.yaml.snakeyaml.Yaml
+import util.matching.Regex
 
 class YamlLoader {
   lazy val yaml = new Yaml
 
-  protected def readContents(contentsDir: File) = {
-    println(contentsDir)
-    var contents: List[String] = Nil
-    for (c <- contentsDir.listFiles.sortBy(f => f.getName)) {
+  protected def readArticles(articlesDir: File) = {
+    var articles: List[Article] = Nil
+    for (c <- articlesDir.listFiles.sortBy(_.getName).reverse) {
       if (c.isFile)
-        contents = Source.fromFile(c).mkString :: contents
+        articles = Article(new Regex(".html?$").replaceFirstIn(c.getName, ""), Source.fromFile(c).mkString) :: articles
     }
-    contents                                                                                                        
+    articles
   }
 
   protected def readSites(sitesDir: File) = {
     var sites: List[Site] = Nil
-    for (d <- sitesDir.listFiles) {
+    for (d <- sitesDir.listFiles.sortBy(_.getName)) {
       if (d.isDirectory) {
         var site = new Site
         site.name = d.getName
@@ -61,9 +61,9 @@ class YamlLoader {
           val inputStream = new FileInputStream(indexFile)
           var cfg = yaml.load(inputStream).asInstanceOf[Config]
           cfg.name = f.getName
-          val contentsDir = new File(f.getCanonicalPath + "/contents")
-          if (contentsDir.exists)
-            cfg.contents = readContents(contentsDir)
+          val articlesDir = new File(f.getCanonicalPath + "/articles")
+          if (articlesDir.exists)
+            cfg.articles = readArticles(articlesDir)
           val sitesDir = new File(f.getCanonicalPath + "/sites")
           if (sitesDir.exists)
             cfg.sites = readSites(sitesDir)

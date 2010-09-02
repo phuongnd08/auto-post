@@ -6,6 +6,9 @@ import scala.collection.immutable.List
 import scala.xml.parsing.XhtmlParser
 
 import org.yaml.snakeyaml.Yaml
+import actors.Actor
+import actors.Actor._
+
 
 object Main {
   def printHelp {
@@ -15,8 +18,10 @@ object Main {
     println("  help : Display this help")
     println("  reload : Reload the configuration")
     println("  list : List available configuration")
-    println("  detail 5giay.vn : Print the detail configuration for 5giay.vn (if exists)")
-    println("  test 5giay.vn: try posting into a 5giay.vn")
+    println("  detail sample_1: Print the detail configuration for sample_1(if exists)")
+    println("  detail sample_1 5giay.vn: Print the detail configuration for 5giay.vn inside sample_1(if exists)")
+    println("  test sample_1: Try to post into all site of inside sample_1")
+    println("  test sample_1 5giay.vn: try posting into a 5giay.vn using configuration inside sample_1")
     println("  exit : quit the program")
   }
 
@@ -27,39 +32,105 @@ object Main {
   var configurations: List[Config] = _
   lazy val yamlLoader: YamlLoader = new YamlLoader
 
-  def loadConfiguration {
+  def reload {
     configurations = yamlLoader.getConfigs
     println("Configuration loaded")
   }
 
-  def listConfiguration {
+  def list {
     println("Available configurations")
-    for (c <- configurations) {
-      println("- " + c.name)
+    configurations.map(c => c.briefDescription.mkString("\n")).foreach(println)
+  }
+
+  protected def conductIfConfigExists(name: String)(body: Config => Unit) {
+    var config = configurations.find((config) => config.name == name)
+    if (config != None) {
+      body(config.get)
+    }
+    else
+      println("Configuration of name " + name + " not found")
+  }
+
+  protected def conductIfSiteExists(config: Config, siteName: String)(body: Site => Unit) {
+    var site = config.siteByName(siteName)
+    if (site != None) {
+      body(site.get)
+    }
+    else
+      println("Site of name " + siteName + " not found inside " + config.name)
+  }
+
+  protected def conductIfNumberOfArgumentsInRange(lo: Int, hi: Int, args: Array[String])(body: => Unit) {
+    if (args.length >= lo && args.length <= hi) body
+    else println("Invalid number of arguments")
+  }
+
+  def detail(args: Array[String]) {
+    conductIfNumberOfArgumentsInRange(1, 2, args) {
+      conductIfConfigExists(args(0)) {
+        config => {
+          if (args.length == 1) {
+            println(config.description.mkString("\n"))
+          } else
+            conductIfSiteExists(config, args(1)) {site => println(site.description.mkString("\n"))}
+        }
+      }
     }
   }
 
-  def runConfiguration(name: String) {
-    var c = configurations.find((config) => config.name == name)
-    if (c != None) runConfiguration(c.get)
-    else println("Configuration of name " + name + " not found")
+  def test(args: Array[String]) {
+    conductIfNumberOfArgumentsInRange(1, 2, args) {
+      conductIfConfigExists(args(0)) {
+        config => {
+          if (args.length == 1)
+            queueConfiguration(config)
+          else
+            conductIfSiteExists(config, args(1)) {site => queueSite(config, site)}
+        }
+      }
+    }
   }
 
-  def runConfiguration(config: Config) {
-    println("Start executing " + config.name)
-    println("End executing " + config.name)
+
+  def queueConfiguration(name: String) {
+    conductIfConfigExists(name) {c => queueConfiguration(c)}
   }
+
+  def queueConfiguration(config: Config) {
+    queueCollector ! config
+  }
+
+  def queueSite(config: Config, site: Site) {
+    queueCollector ! (config, site)
+  }
+
+  var queueCollector: Actor = _
 
   def main(args: Array[String]) {
     printHint
-    val dataIn = new BufferedReader(new InputStreamReader(System.in))
+    reload
+    queueCollector = new QueueCollector
+
+    val queueProcessor = new QueueProcessor(queueCollector,
+      queue => println("Processor received [" + queue.site.name + "]@[" + queue.config.name + "]"))
+
+    var actors = List(queueCollector, queueProcessor)
+    actors.foreach(a => a.start)
     while (true) {
       print("> ")
-      val line = dataIn.readLine
-      line match {
+      val line = readLine
+      val command = line.split(" ").head
+      val args = line.split(" ").tail
+      command match {
         case "help" => printHelp
-        case "exit" => return
-        case "list" => println("Let's list all configuration")
+        case "exit" => {
+          actors.foreach(a => a ! "exit");
+          return
+        }
+        case "list" => list
+        case "reload" => reload
+        case "detail" => detail(args)
+        case "test" => test(args)
         case _ => println("What the hell are you trying to do?")
       }
     }
