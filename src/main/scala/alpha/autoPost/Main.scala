@@ -105,17 +105,42 @@ object Main {
   }
 
   var queueCollector: Actor = _
+  var queueProcessors: List[Actor] = _
+  var scheduler: Actor = _
+  var daemons: List[Actor] = _
+  val timeProvider = new TimeProvider
+  val seleniumWrapper = new SeleniumWrapper
+  val seleniumSmartController = new SeleniumSmartController(timeProvider, seleniumWrapper)
+
+  def prepareActors {
+    queueCollector = new QueueCollector
+    queueProcessors = (for (i <- 1 until 2) yield new QueueProcessor(queueCollector,
+      queue => {
+        seleniumSmartController.requestServer
+        println("Processor received [" + queue.site.name + "]@[" + queue.config.name + "]")
+        seleniumWrapper.execute(queue.site.url) {(processor) => queue.run(processor)}
+      })).toList
+
+    scheduler = new AutoScheduler(new TimeProvider, () => configurations, queueCollector)
+    daemons = List(new Daemon(() => seleniumSmartController.prune))    
+  }
+
+  def actors = scheduler :: queueCollector :: queueProcessors
+
+  def startAllActors {
+    actors.foreach(a => a.start)
+  }
+
+  def stopAllActors {
+    actors.foreach(a => a ! "exit");
+  }
 
   def main(args: Array[String]) {
     printHint
     reload
-    queueCollector = new QueueCollector
+    prepareActors
+    startAllActors
 
-    val queueProcessor = new QueueProcessor(queueCollector,
-      queue => println("Processor received [" + queue.site.name + "]@[" + queue.config.name + "]"))
-
-    var actors = List(queueCollector, queueProcessor)
-    actors.foreach(a => a.start)
     while (true) {
       print("> ")
       val line = readLine
@@ -124,13 +149,14 @@ object Main {
       command match {
         case "help" => printHelp
         case "exit" => {
-          actors.foreach(a => a ! "exit");
+          stopAllActors
           return
         }
         case "list" => list
         case "reload" => reload
         case "detail" => detail(args)
         case "test" => test(args)
+        case "" =>
         case _ => println("What the hell are you trying to do?")
       }
     }

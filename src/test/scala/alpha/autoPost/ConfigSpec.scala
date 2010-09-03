@@ -22,15 +22,15 @@ class ConfigSpec extends Spec with MustMatchers with BeforeAndAfterEach {
   }
 
   describe("getBeaters") {
-    it("first element should be a CyclicBeater if every of repeatedInterval is set") {
+    it("must return properly if both every and fixedSchedule are set") {
       config.every = "10:20"
-      config.fixedSchedule = Array("5:20")
-      config.beaters.head.isInstanceOf[CyclicBeater] must be(true)
+      config.fixedSchedule = Array("5:20", "6:30")
+      config.beaters must be(List(CyclicBeater((10 * 3600 + 20 * 60) * 1000), ScheduledBeater(5, 20), ScheduledBeater(6, 30)))
     }
-
-    it("first element should be a ScheduledBeater if every is not set") {
-      config.fixedSchedule = Array("5:20")
-      config.beaters.head.isInstanceOf[ScheduledBeater] must be(true)
+    it("must return properly if neither of every or fixedSchedule presents") {
+      config.every = null
+      config.fixedSchedule = null
+      config.beaters must be(List[Beater]())
     }
   }
 
@@ -61,21 +61,21 @@ class ConfigSpec extends Spec with MustMatchers with BeforeAndAfterEach {
       config.sites = List(Site("5giay.vn"), Site("batdongsan.com"), Site("raovat.com"))
       config.description must be(List(
         "Configuration for sample_1",
-        " - info",
-        "  + username: phuong",
-        "  + password: 123456",
-        "  + rememberMe: no",
-        " - repeated every 20:00",
-        " - fixed schedules",
-        "  + 5:20",
-        "  + 7:20",
-        " - sites",
-        "  + 5giay.vn",
-        "  + batdongsan.com",
-        "  + raovat.com",
-        " - articles",
-        "  + a",
-        "  + b"
+        "\t- info",
+        "\t\t+ username: phuong",
+        "\t\t+ password: 123456",
+        "\t\t+ rememberMe: no",
+        "\t- repeated every 20:00",
+        "\t- fixed schedules",
+        "\t\t+ 5:20",
+        "\t\t+ 7:20",
+        "\t- sites",
+        "\t\t+ 5giay.vn",
+        "\t\t+ batdongsan.com",
+        "\t\t+ raovat.com",
+        "\t- articles",
+        "\t\t+ a",
+        "\t\t+ b"
         ))
     }
 
@@ -84,11 +84,11 @@ class ConfigSpec extends Spec with MustMatchers with BeforeAndAfterEach {
       config.articles = List[Article]()
       config.description must be(List(
         "Configuration for sample_1",
-        " - no info",
-        " - no repeated schedules",
-        " - no fixed schedules",
-        " - no sites",
-        " - no articles"))
+        "\t- no info",
+        "\t- no repeated schedules",
+        "\t- no fixed schedules",
+        "\t- no sites",
+        "\t- no articles"))
     }
   }
 
@@ -97,10 +97,10 @@ class ConfigSpec extends Spec with MustMatchers with BeforeAndAfterEach {
       config.sites = List(Site("5giay.vn"), Site("batdongsan.com"), Site("raovat.com"))
       config.briefDescription must be(List(
         "sample_1",
-        " - sites",
-        "  + 5giay.vn",
-        "  + batdongsan.com",
-        "  + raovat.com"
+        "\t- sites",
+        "\t\t+ 5giay.vn",
+        "\t\t+ batdongsan.com",
+        "\t\t+ raovat.com"
         ))
     }
 
@@ -108,7 +108,7 @@ class ConfigSpec extends Spec with MustMatchers with BeforeAndAfterEach {
       config.sites = List()
       config.briefDescription must be(List(
         "sample_1",
-        " - no sites"
+        "\t- no sites"
         ))
     }
 
@@ -116,16 +116,16 @@ class ConfigSpec extends Spec with MustMatchers with BeforeAndAfterEach {
       config.sites = null
       config.briefDescription must be(List(
         "sample_1",
-        " - no sites"
+        "\t- no sites"
         ))
     }
   }
 
 
-  describe("siteByName"){
-    it("must return None if no site found"){
+  describe("siteByName") {
+    it("must return None if no site found") {
       config.sites = null
-      config.siteByName("some_name") must be (None)
+      config.siteByName("some_name") must be(None)
     }
   }
 }

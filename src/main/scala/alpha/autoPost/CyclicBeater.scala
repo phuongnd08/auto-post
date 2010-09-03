@@ -8,6 +8,6 @@ package alpha.autoPost
  * To change this template use File | Settings | File Templates.
  */
 
-class CyclicBeater(val interval:Long) extends Beater{
+case class CyclicBeater(val interval:Long) extends Beater{
   override def shouldBeatNow(lastBeat:Long, now:Long)= now > lastBeat + interval
 }

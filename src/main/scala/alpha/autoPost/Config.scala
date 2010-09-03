@@ -29,7 +29,7 @@ case class Config {
     if (every != null) {
       list = new CyclicBeater(Beater.strToInterval(every)) :: list
     }
-    list ::: fixedSchedule.toList.map(s => new ScheduledBeater(Beater.strToHourAndMinute(s)))
+    list ::: Option(fixedSchedule).getOrElse(Array[String]()).toList.map(s => new ScheduledBeater(Beater.strToHourAndMinute(s)))
   }
 
   def shouldRunNow(lastRun: Long, now: Long): Boolean = {
@@ -41,19 +41,19 @@ case class Config {
   def description: List[String] = {
     var list = List("Configuration for " + name)
     if (info != null) {
-      list = " - info" :: list
-      for ((k, v) <- info) {list = ("  + " + k + ": " + v) :: list}
-    } else list = " - no info" :: list
+      list = "\t- info" :: list
+      for ((k, v) <- info) {list = ("\t\t+ " + k + ": " + v) :: list}
+    } else list = "\t- no info" :: list
     if (every != null)
-      list = " - repeated every " + every :: list
-    else list = " - no repeated schedules" :: list
+      list = "\t- repeated every " + every :: list
+    else list = "\t- no repeated schedules" :: list
 
     def getList(name: String, sequence: List[AnyRef])(getText: AnyRef => String): List[String] = {
       var list: List[String] = Nil
       if (sequence != null && sequence.length > 0) {
-        list = " - " + name :: list
-        list = sequence.map(item => "  + " + getText(item)).reverse ::: list
-      } else list = " - no " + name :: list
+        list = "\t- " + name :: list
+        list = sequence.map(item => "\t\t+ " + getText(item)).reverse ::: list
+      } else list = "\t- no " + name :: list
       list
     }
 
@@ -67,9 +67,9 @@ case class Config {
   def briefDescription: List[String] = {
     var list = List(name)
     if (sites != null && sites.length > 0) {
-      list = " - sites" :: list
-      sites.foreach(s => list = "  + " + s.name :: list)
-    } else list = " - no sites" :: list
+      list = "\t- sites" :: list
+      sites.foreach(s => list = "\t\t+ " + s.name :: list)
+    } else list = "\t- no sites" :: list
     list.reverse
   }
 }

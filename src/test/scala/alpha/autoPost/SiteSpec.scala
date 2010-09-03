@@ -27,16 +27,16 @@ class SiteSpec extends Spec with MustMatchers with BeforeAndAfterEach {
       site.logoutSteps = Array(Array("open", "/logout"), Array("clickAndWait", "button", "3000"))
       site.description must be (List(
         "Description for 5giay.vn",
-        " - url: http://5giay.vn",
-        " - login steps",
-        "  + open /",
-        "  + clickAndWait button, 3000",
-        " - post steps",
-        "  + post /thread",
-        "  + clickAndWait submit, 2000",
-        " - logout steps",
-        "  + open /logout",
-        "  + clickAndWait button, 3000"))
+        "\t- url: http://5giay.vn",
+        "\t- login steps",
+        "\t\t+ open /",
+        "\t\t+ clickAndWait button, 3000",
+        "\t- post steps",
+        "\t\t+ post /thread",
+        "\t\t+ clickAndWait submit, 2000",
+        "\t- logout steps",
+        "\t\t+ open /logout",
+        "\t\t+ clickAndWait button, 3000"))
     }
 
     it("must describe properly if many steps missed"){
@@ -45,11 +45,11 @@ class SiteSpec extends Spec with MustMatchers with BeforeAndAfterEach {
       site.logoutSteps = Array(Array("open", "/logout"))
       site.description must be (List(
         "Description for 5giay.vn",
-        " - url: http://5giay.vn",
-        " - no login steps",
-        " - no post steps",
-        " - logout steps",
-        "  + open /logout"))
+        "\t- url: http://5giay.vn",
+        "\t- no login steps",
+        "\t- no post steps",
+        "\t- logout steps",
+        "\t\t+ open /logout"))
     }
   }
 }

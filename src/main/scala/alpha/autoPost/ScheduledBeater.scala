@@ -10,7 +10,7 @@ import org.joda.time.DateTime
  * To change this template use File | Settings | File Templates.
  */
 
-class ScheduledBeater(val hour:Int, val minute:Int) extends Beater{
+case class ScheduledBeater(val hour:Int, val minute:Int) extends Beater{
   def this(hourAndMinute: {val hour: Int; val minute:Int}) = this(hourAndMinute.hour, hourAndMinute.minute)
   def shouldBeatNow(lastBeat:Long, now:Long) = {
     val correctMoment = new DateTime(now).withHourOfDay(hour).withMinuteOfHour(minute).withSecondOfMinute(0).withMillisOfSecond(0).getMillis

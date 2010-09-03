@@ -8,20 +8,28 @@ package alpha.autoPost
  * To change this template use File | Settings | File Templates.
  */
 
-class SeleniumSmartController(env: {val timeProvider: TimeProvider; val seleniumWrapper: SeleniumWrapper}, val maxServerIdle: Int){
-  protected var lastUsed = env.timeProvider.current
-  def getLastUsed=lastUsed
-  def requestServer  {
-    lastUsed = env.timeProvider.current
-    if (!env.seleniumWrapper.serverStarted)
-      env.seleniumWrapper.startServer
+object SeleniumSmartController {
+  val DefaultMaxServerIdle = 5 * 60 * 1000
+}
+
+class SeleniumSmartController(val timeProvider: TimeProvider, val seleniumWrapper: SeleniumWrapper, val maxServerIdle: Int) {
+  def this(timeProvider: TimeProvider, seleniumWrapper: SeleniumWrapper) = this (timeProvider, seleniumWrapper, SeleniumSmartController.DefaultMaxServerIdle)
+
+  protected var lastUsed = timeProvider.current
+
+  def getLastUsed = lastUsed
+
+  def requestServer {
+    lastUsed = timeProvider.current
+    if (!seleniumWrapper.serverStarted)
+      seleniumWrapper.startServer
   }
 
-  def prune{
+  def prune {
     println("lastUsed =" + lastUsed)
-    println("env.timeProvider.current ="+env.timeProvider.current)
-    println("maxServerIdle ="+maxServerIdle)
-    if (env.timeProvider.current - lastUsed> maxServerIdle)
-      env.seleniumWrapper.stopServer 
+    println("env.timeProvider.current =" + timeProvider.current)
+    println("maxServerIdle =" + maxServerIdle)
+    if (timeProvider.current - lastUsed > maxServerIdle)
+      seleniumWrapper.stopServer
   }
 }

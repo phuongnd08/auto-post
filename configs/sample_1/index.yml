@@ -3,7 +3,5 @@
     username: phuongnd08
     password: 1234567
     title: Morgage news
-  every: 2 hours
+  every: 00:01
   fixedSchedule:
-    - 05:55
-    - 10:55

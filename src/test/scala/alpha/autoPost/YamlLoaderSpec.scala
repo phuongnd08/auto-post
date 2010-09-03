@@ -58,11 +58,12 @@ class YamlLoaderSpec extends Spec with MustMatchers with BeforeAndAfterEach {
           Array("assertConfirmation", "Bạn có chắc chắn là bạn thoát khỏi diễn đàn không ?", "")))
       }
       it("must have correct repeated schedule") {
-        sampleConfig.every must be("2 hours")
+        configList(0).every must be("00:01")
+        configList(1).every must be(null)
       }
       it("must have correct fixed schedule") {
-        val fs = sampleConfig.fixedSchedule
-        fs must not be (Array("05:55", "10:55"))
+        configList(0).fixedSchedule must be (null)
+        configList(1).fixedSchedule must be (Array("22:20", "22:24"))
       }
       it("must have correct articles") {
         var articles = sampleConfig.articles

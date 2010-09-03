@@ -24,7 +24,7 @@ class SeleniumSmartControllerSpec extends Spec with MustMatchers with MockitoSug
     timeProvider = mock[TimeProvider]
     when(timeProvider.current).thenReturn(1)
     seleniumWrapper = mock[SeleniumWrapper]
-    smartController = new SeleniumSmartController(new {val timeProvider = SeleniumSmartControllerSpec.this.timeProvider; val seleniumWrapper = SeleniumSmartControllerSpec.this.seleniumWrapper}, 20000)
+    smartController = new SeleniumSmartController(timeProvider, seleniumWrapper, 20000)
   }
 
   describe("requestServer"){

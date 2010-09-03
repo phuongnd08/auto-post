@@ -19,14 +19,14 @@ case class Site(var name: String) {
 
   def description: List[String] = {
     var list = List("Description for " + name)
-    list = " - url: " + url :: list
+    list = "\t- url: " + url :: list
     def phaseDescription(phaseName: String, steps: Array[Array[String]]): List[String] = {
       var phaseList: List[String] = Nil
       if ((steps != null) && (steps.length > 0)) {
-        phaseList = " - " + phaseName :: phaseList
-        steps.foreach(s => phaseList = "  + "+List(s.head, s.tail.mkString(", ")).mkString(" ") :: phaseList)
+        phaseList = "\t- " + phaseName :: phaseList
+        steps.foreach(s => phaseList = "\t\t+ "+List(s.head, s.tail.mkString(", ")).mkString(" ") :: phaseList)
       } else {
-        phaseList = " - no " + phaseName :: phaseList
+        phaseList = "\t- no " + phaseName :: phaseList
       }
       phaseList
     }
