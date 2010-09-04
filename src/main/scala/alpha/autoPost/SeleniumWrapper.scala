@@ -14,7 +14,7 @@ import org.azeckoski.reflectutils.ReflectUtils
  * To change this template use File | Settings | File Templates.
  */
 
-object SeleniumWrapper{
+object SeleniumWrapper {
   val DefaultPort = 4444
   val DefaultHost = "localhost"
   val DefaultBrowser = "*firefox"
@@ -38,28 +38,16 @@ class SeleniumWrapper {
     else throw new Exception(jarPath + " not found")
   }
 
-  def startServer {
-    println("def startServer")
-    var serverKicked = false;
-    while (!serverStarted) {
-      if (!serverKicked) {
-        val jarPath = Environment.getJarPath + "/tools/selenium-server.jar"
-        spawnJar(jarPath)
-      }
-      serverKicked = true
-      Thread.sleep(SeleniumWrapper.RecheckInterval)
-    }
-  }
 
-  def serverStarted: Boolean = {
+  def serverRunning: Boolean = {
     var socket: ServerSocket = null
     try {
       socket = new ServerSocket(SeleniumWrapper.DefaultPort);
-      println("Server is not started")  
+      println("Server is NOT running")
       return false
     } catch {
       case e: IOException => {
-        println("Server started")          
+        println("Server is RUNNING")
         return true
       }
     } finally {
@@ -68,12 +56,32 @@ class SeleniumWrapper {
     }
   }
 
-  def stopServer {
-    new URL("http://localhost:" + SeleniumWrapper.DefaultPort + "/selenium-server/driver/?cmd=shutDownSeleniumServer").openConnection.getContent
-    while (serverStarted) {
+  def startServer {
+    val jarPath = Environment.getJarPath + "/tools/selenium-server.jar"
+    spawnJar(jarPath)
+    waitForServerStarted
+  }
+
+  def waitForServerStarted {
+    while (!serverRunning) {
       Thread.sleep(SeleniumWrapper.RecheckInterval)
     }
   }
+
+  def stopServer {
+    if (serverRunning) {
+      new URL("http://localhost:" + SeleniumWrapper.DefaultPort + "/selenium-server/driver/?cmd=shutDownSeleniumServer").openConnection.getContent
+      waitForServerStopped
+    }
+  }
+
+
+  def waitForServerStopped {
+    while (serverRunning) {
+      Thread.sleep(SeleniumWrapper.RecheckInterval)
+    }
+  }
+
 
   def execute(url: String)(operation: (CommandProcessor) => Unit) {
     val selenium = new DefaultSelenium(SeleniumWrapper.DefaultHost, SeleniumWrapper.DefaultPort, SeleniumWrapper.DefaultBrowser, url)

@@ -12,27 +12,30 @@ import org.scalatest.{BeforeAndAfterEach, Spec}
  * To change this template use File | Settings | File Templates.
  */
 
-class SeleniumWrapperSpec extends Spec with MustMatchers with BeforeAndAfterEach{
+class SeleniumWrapperSpec extends Spec with MustMatchers with BeforeAndAfterEach {
   var seleniumWrapper: SeleniumWrapper = _
 
-  override def beforeEach{
+  override def beforeEach {
     seleniumWrapper = new SeleniumWrapper
   }
 
   describe("control selenium server") {
     it("must start stop server properly") {
-      seleniumWrapper.serverStarted must be(false)
+      seleniumWrapper.serverRunning must be(false)
       seleniumWrapper.startServer
-      seleniumWrapper.serverStarted must be(true)
+      seleniumWrapper.serverRunning must be(true)
       seleniumWrapper.stopServer
-      seleniumWrapper.serverStarted must be(false)
+      seleniumWrapper.serverRunning must be(false)
+    }
+    it("stop server run smoothly even if server is not started") {
+      seleniumWrapper.stopServer
     }
   }
 
   describe("run selenium command") {
     it("should execute command properly") {
       println("Start Server")
-      println("SeleniumWrapper.serverStarted = " + seleniumWrapper.serverStarted)
+      println("SeleniumWrapper.serverRunning = " + seleniumWrapper.serverRunning)
       seleniumWrapper.startServer
       try {
         println("Start Testing")

@@ -22,21 +22,23 @@ class SeleniumSmartController(val timeProvider: TimeProvider, val seleniumWrappe
 
   def requestServer {
     lastUsed = timeProvider.current
-    if (!serverKickedOn) {
-      serverKickedOn = true
-      seleniumWrapper.startServer
-    } else {
-      while (!seleniumWrapper.serverStarted) {Thread.sleep(SeleniumWrapper.RecheckInterval)}
-    }
+    turnServerOnOff(true)
   }
+
+  def turnServerOnOff(on: Boolean) = synchronized {
+    if (on)
+      {if (!seleniumWrapper.serverRunning) seleniumWrapper.startServer}
+    else
+      {if (seleniumWrapper.serverRunning) seleniumWrapper.stopServer}
+  }
+
 
   def prune {
     println("lastUsed =" + lastUsed)
     println("env.timeProvider.current =" + timeProvider.current)
     println("maxServerIdle =" + maxServerIdle)
     if (timeProvider.current - lastUsed > maxServerIdle) {
-      serverKickedOn = false
-      seleniumWrapper.stopServer
+      turnServerOnOff(false)
     }
   }
 }

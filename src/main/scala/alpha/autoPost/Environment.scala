@@ -8,6 +8,13 @@ package alpha.autoPost
  * To change this template use File | Settings | File Templates.
  */
 
-object Environment{
-  def getJarPath = this.getClass.getProtectionDomain.getCodeSource.getLocation.getPath  
+object Environment {
+  def getJarPath: String = {
+    var path = this.getClass.getProtectionDomain.getCodeSource.getLocation.getPath
+    val file = new java.io.File(path)
+    if (file.isFile)
+      file.getParent
+    else
+      path
+  }
 }

@@ -121,7 +121,7 @@ object Main {
         seleniumWrapper.execute(queue.site.url) {(processor) => queue.run(processor)}
       })).toList
 
-    println("queueProcessors.length="+queueProcessors.length)
+    println("queueProcessors.length=" + queueProcessors.length)
     scheduler = new AutoScheduler(new TimeProvider, () => configurations, queueCollector)
     daemons = List(new Daemon(() => seleniumSmartController.prune))
   }
@@ -136,10 +136,11 @@ object Main {
     actors.foreach(a => a ! "exit");
   }
 
-  def backlog(args:Array[String]){queueCollector ! "list"}
+  def backlog(args: Array[String]) {queueCollector ! "list"}
 
   def main(args: Array[String]) {
     printHint
+    println("Loading resources from [" + Environment.getJarPath + "]")
     reload
     prepareActors
     startAllActors
