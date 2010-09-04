@@ -114,15 +114,16 @@ object Main {
 
   def prepareActors {
     queueCollector = new QueueCollector
-    queueProcessors = (for (i <- 1 until 2) yield new QueueProcessor(queueCollector,
+    queueProcessors = (for (i <- 1 to 2) yield new QueueProcessor("processor-" + i, queueCollector,
       queue => {
         seleniumSmartController.requestServer
-        println("Processor received [" + queue.site.name + "]@[" + queue.config.name + "]")
+        println("Start process[" + queue.site.name + "]@[" + queue.config.name + "]")
         seleniumWrapper.execute(queue.site.url) {(processor) => queue.run(processor)}
       })).toList
 
+    println("queueProcessors.length="+queueProcessors.length)
     scheduler = new AutoScheduler(new TimeProvider, () => configurations, queueCollector)
-    daemons = List(new Daemon(() => seleniumSmartController.prune))    
+    daemons = List(new Daemon(() => seleniumSmartController.prune))
   }
 
   def actors = scheduler :: queueCollector :: queueProcessors
@@ -134,6 +135,8 @@ object Main {
   def stopAllActors {
     actors.foreach(a => a ! "exit");
   }
+
+  def backlog(args:Array[String]){queueCollector ! "list"}
 
   def main(args: Array[String]) {
     printHint
@@ -150,12 +153,14 @@ object Main {
         case "help" => printHelp
         case "exit" => {
           stopAllActors
+          seleniumWrapper.stopServer
           return
         }
         case "list" => list
         case "reload" => reload
         case "detail" => detail(args)
         case "test" => test(args)
+        case "backlog" => backlog(args)
         case "" =>
         case _ => println("What the hell are you trying to do?")
       }

@@ -14,12 +14,14 @@ import org.azeckoski.reflectutils.ReflectUtils
  * To change this template use File | Settings | File Templates.
  */
 
-class SeleniumWrapper {
-  val SELENIUM_PORT = 4444
-  val SELENIUM_HOST = "localhost"
-  val SELENIUM_DEFAULT_BROWSER = "*firefox"
-  var RECHECK_INTERVAL = 1111
+object SeleniumWrapper{
+  val DefaultPort = 4444
+  val DefaultHost = "localhost"
+  val DefaultBrowser = "*firefox"
+  var RecheckInterval = 1111
+}
 
+class SeleniumWrapper {
   protected def spawnJar(jarPath: String) {
     if ((new File(jarPath)).exists) {
       spawn {
@@ -45,14 +47,14 @@ class SeleniumWrapper {
         spawnJar(jarPath)
       }
       serverKicked = true
-      Thread.sleep(RECHECK_INTERVAL)
+      Thread.sleep(SeleniumWrapper.RecheckInterval)
     }
   }
 
   def serverStarted: Boolean = {
     var socket: ServerSocket = null
     try {
-      socket = new ServerSocket(SELENIUM_PORT);
+      socket = new ServerSocket(SeleniumWrapper.DefaultPort);
       println("Server is not started")  
       return false
     } catch {
@@ -67,14 +69,14 @@ class SeleniumWrapper {
   }
 
   def stopServer {
-    new URL("http://localhost:" + SELENIUM_PORT + "/selenium-server/driver/?cmd=shutDownSeleniumServer").openConnection.getContent
+    new URL("http://localhost:" + SeleniumWrapper.DefaultPort + "/selenium-server/driver/?cmd=shutDownSeleniumServer").openConnection.getContent
     while (serverStarted) {
-      Thread.sleep(RECHECK_INTERVAL)
+      Thread.sleep(SeleniumWrapper.RecheckInterval)
     }
   }
 
   def execute(url: String)(operation: (CommandProcessor) => Unit) {
-    val selenium = new DefaultSelenium(SELENIUM_HOST, SELENIUM_PORT, SELENIUM_DEFAULT_BROWSER, url)
+    val selenium = new DefaultSelenium(SeleniumWrapper.DefaultHost, SeleniumWrapper.DefaultPort, SeleniumWrapper.DefaultBrowser, url)
     selenium.start()
     val cmdProcessor = ReflectUtils.getInstance.getFieldValue(selenium, "commandProcessor").asInstanceOf[CommandProcessor]
     operation(cmdProcessor)

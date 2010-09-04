@@ -30,9 +30,9 @@ class QueueCollectorSpec extends Spec with MustMatchers with BeforeAndAfterEach 
     collector ! s3
     var list = List[Queue]()
     val receiver = actor {
-      for (i <- 1 until 4) {
+      for (i <- 1 to 4) {
         collector ! "get"
-        receive {
+        receiveWithin(100) {
           case q: Queue => list = q :: list
           case _ =>
         }

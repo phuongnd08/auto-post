@@ -16,20 +16,27 @@ class SeleniumSmartController(val timeProvider: TimeProvider, val seleniumWrappe
   def this(timeProvider: TimeProvider, seleniumWrapper: SeleniumWrapper) = this (timeProvider, seleniumWrapper, SeleniumSmartController.DefaultMaxServerIdle)
 
   protected var lastUsed = timeProvider.current
+  protected var serverKickedOn = false
 
   def getLastUsed = lastUsed
 
   def requestServer {
     lastUsed = timeProvider.current
-    if (!seleniumWrapper.serverStarted)
+    if (!serverKickedOn) {
+      serverKickedOn = true
       seleniumWrapper.startServer
+    } else {
+      while (!seleniumWrapper.serverStarted) {Thread.sleep(SeleniumWrapper.RecheckInterval)}
+    }
   }
 
   def prune {
     println("lastUsed =" + lastUsed)
     println("env.timeProvider.current =" + timeProvider.current)
     println("maxServerIdle =" + maxServerIdle)
-    if (timeProvider.current - lastUsed > maxServerIdle)
+    if (timeProvider.current - lastUsed > maxServerIdle) {
+      serverKickedOn = false
       seleniumWrapper.stopServer
+    }
   }
 }

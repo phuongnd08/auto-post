@@ -81,5 +81,17 @@ class QueueSpec extends Spec with MustMatchers with BeforeAndAfterEach with Mock
         List("open", "/logout")
         ))
     }
+    it("should exit gracefully on exception") {
+      val processor = mock[CommandProcessor]
+      import org.mockito._
+      import stubbing._
+      import invocation._
+      import Mockito._
+      import Matchers._
+      var commands: List[List[String]] = Nil
+      when(processor.doCommand(anyString, any[Array[String]])).thenThrow(new RuntimeException)
+      queue.run(processor)
+    }
+
   }
 }

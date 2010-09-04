@@ -10,13 +10,13 @@ import actors.Actor
  * To change this template use File | Settings | File Templates.
  */
 
-class QueueProcessor(val collector:Actor, val process: (Queue)=>Unit) extends Actor {
+class QueueProcessor(val name: String, val collector: Actor, val process: (Queue) => Unit) extends Actor {
   def act {
     while (true) {
       collector ! "get"
       receiveWithin(1000) {
         case queue: Queue => {
-          println("Received queue")
+          println("[" + name + "]Received queue")
           process(queue)
         }
         case cmd: String => {

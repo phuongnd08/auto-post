@@ -41,7 +41,7 @@ class AutoSchedulerSpec extends Spec with MustMatchers with BeforeAndAfterEach w
     when(config2.shouldRunNow(1000, 2000)).thenReturn(false)
     var receivedConfigs = List[Config]()
     val collector = actor {
-      for (i <- 1 until 3)
+      for (i <- 1 to 3)
         receiveWithin(100) {
           case config: Config => receivedConfigs = receivedConfigs ::: List(config)
           case _ =>

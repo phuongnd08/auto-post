@@ -2,7 +2,7 @@ package alpha.autoPost
 
 import org.scalatest.matchers.MustMatchers
 import org.scalatest.mock.MockitoSugar
-import org.mockito.Mockito
+import org.mockito._
 import org.scalatest.{BeforeAndAfterEach, Spec}
 
 /**
@@ -38,6 +38,14 @@ class SeleniumSmartControllerSpec extends Spec with MustMatchers with MockitoSug
       when(timeProvider.current).thenReturn(10)
       smartController.requestServer
       smartController.getLastUsed must be (10)
+    }
+
+    it("should not start server twice if server is already kicked"){
+      import Matchers._
+      when(seleniumWrapper.serverStarted).thenReturn(false, false, true)
+      (1 to 2).foreach(i => smartController.requestServer)
+      verify(seleniumWrapper, times(1)).startServer
+      verify(seleniumWrapper, times(3)).serverStarted
     }
   }
   describe("prune"){

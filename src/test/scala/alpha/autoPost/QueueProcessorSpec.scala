@@ -25,7 +25,7 @@ class QueueProcessorSpec extends Spec with MustMatchers with BeforeAndAfterEach 
         case _ =>
       }
     }
-    processor = new QueueProcessor(collector, q => {})
+    processor = new QueueProcessor("test_1", collector, q => {})
     processor.start
     while (collector.getState != State.Terminated) Thread.sleep(100)
     received must be(true)
@@ -33,7 +33,7 @@ class QueueProcessorSpec extends Spec with MustMatchers with BeforeAndAfterEach 
 
   it("should invoke process when receive a Queue") {
     var invoked = false
-    processor = new QueueProcessor(actor {}, q => invoked = true)
+    processor = new QueueProcessor("test_2", actor {}, q => invoked = true)
     processor.start
     processor ! Queue(null, null)
     Thread.sleep(100)

@@ -42,8 +42,22 @@ case class Queue(val config: Config, val site: Site) {
     config.articles.foreach(a => {
       for (steps <- Array(site.loginSteps, site.postSteps, site.logoutSteps))
         Option(steps).getOrElse(Array[Array[String]]()).map(Queue.realizedCommand(_, config.info, a))
-                .foreach(arr => processor.doCommand(arr.head, arr.tail))
+                .foreach(arr =>
+          {
+            try {
+              processor.doCommand(arr.head, arr.tail)
+            } catch {
+              case ex: Exception => {
+                println("Exception while trying to run [" + arr.mkString(", ")+"]")
+                ex.printStackTrace
+                println("Execution on [" + site.name + "] of [" + config.name + "] terminated")
+                return
+              }
+            }
+          })
 
     })
   }
+
+  override def toString = "["+site.name+"]@["+config.name+"]"
 }

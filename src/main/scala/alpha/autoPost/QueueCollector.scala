@@ -34,6 +34,10 @@ class QueueCollector extends Actor {
                 queue = queue.tail
               }
             }
+            case "list" => {
+              println("List of queues")
+              queue.foreach(q => println("\t- " + q))
+            }
           }
         }
         case _ =>
