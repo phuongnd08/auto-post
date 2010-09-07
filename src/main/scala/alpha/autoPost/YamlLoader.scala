@@ -8,6 +8,10 @@ import scala.xml.parsing.XhtmlParser
 import org.yaml.snakeyaml.Yaml
 import util.matching.Regex
 
+object YamlLoader{
+  val DefaultEncoding = "UTF-8"
+}
+
 class YamlLoader {
   lazy val yaml = new Yaml
 
@@ -15,7 +19,7 @@ class YamlLoader {
     var articles: List[Article] = Nil
     for (c <- articlesDir.listFiles.sortBy(_.getName).reverse) {
       if (c.isFile)
-        articles = Article(new Regex(".html?$").replaceFirstIn(c.getName, ""), Source.fromFile(c).mkString) :: articles
+        articles = Article(new Regex(".html?$").replaceFirstIn(c.getName, ""), Source.fromFile(c)(YamlLoader.DefaultEncoding).mkString) :: articles
     }
     articles
   }
@@ -38,7 +42,7 @@ class YamlLoader {
   protected def readSteps(stepsFile: File):Array[Array[String]] = {
     if (stepsFile.exists) {
       var result: List[Array[String]] = Nil
-      val xml = XhtmlParser(Source.fromFile(stepsFile))
+      val xml = XhtmlParser(Source.fromFile(stepsFile)(YamlLoader.DefaultEncoding))
       for (row <- xml \"body" \ "table" \ "tbody" \ "tr"){
         var params: List[String] = Nil
         for (cell <- row \ "td"){
