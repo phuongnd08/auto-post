@@ -23,7 +23,7 @@ class DaemonSpec extends Spec with MustMatchers with BeforeAndAfterEach {
 
   it("must exit upon receive exit signal") {
     Thread.sleep(50)
-    daemon.getState must be(State.TimedBlocked)
+    daemon.getState must not be(State.Terminated)
     daemon ! "exit"
     Thread.sleep(50)
     daemon.getState must be(State.Terminated)

@@ -6,29 +6,28 @@ import org.scalatest.{BeforeAndAfterEach, Spec}
 class YamlLoaderSpec extends Spec with MustMatchers with BeforeAndAfterEach {
   var yamlLoader: YamlLoader = _
 
-  var configList: List[Config] = _
-  var sampleConfig: Config = _
+  var configList: List[Section] = _
+  var sampleConfig: Section = _
 
   override def beforeEach {
     yamlLoader = new YamlLoader
-    configList = yamlLoader.getConfigs
+    configList = yamlLoader.getSections
     sampleConfig = configList(0)
   }
-  describe("getConfigs") {
-    it("must return sample config") {
+  describe("getSections") {
+    it("must return sample section") {
       configList must not be (null)
       configList must have length (2)
       configList(0).name must be("sample_1")
       configList(1).name must be("sample_2")
     }
 
-    describe("sample config 1") {
+    describe("sample section 1") {
       it("must have correct info") {
         val info = sampleConfig.info
         info must not be (null)
         info.get("username") must be("phuongnd08")
         info.get("password") must be("1234567")
-        info.get("title") must be("Morgage news")
       }
       it("must have correct site descriptions") {
         val sites = sampleConfig.sites
@@ -56,6 +55,12 @@ class YamlLoaderSpec extends Spec with MustMatchers with BeforeAndAfterEach {
           Array("open", "/", ""),
           Array("click", "link=Thoát", ""),
           Array("assertConfirmation", "Bạn có chắc chắn là bạn thoát khỏi diễn đàn không ?", "")))
+
+        s1.specificInfo must not be (null)
+        println("s1.specificInfo(\"rememberMe\").getClass")
+        println(s1.specificInfo("rememberMe").getClass)
+        s1.specificInfo("username") must be ("mrcold")
+        s1.specificInfo("rememberMe") must be ("maybe")
       }
       it("must have correct repeated schedule") {
         configList(0).every must be("00:01")

@@ -13,10 +13,18 @@ import scala.collection.JavaConversions._
  */
 
 @BeanInfo
-case class Config {
+case class Section {
   var name: String = _
   var info: Map[String, String] = _
-  var sites: List[Site] = _
+  private var _sites: List[Site] = _
+
+  def sites = _sites
+
+  def sites_=(newSite: List[Site]) {
+    _sites = newSite
+    if (newSite != null) newSite.foreach(_.section = this)
+  }
+
   var every: String = _
   var fixedSchedule: Array[String] = _
 

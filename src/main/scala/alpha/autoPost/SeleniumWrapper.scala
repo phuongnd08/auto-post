@@ -18,7 +18,7 @@ object SeleniumWrapper {
   val DefaultPort = 4444
   val DefaultHost = "localhost"
   val DefaultBrowser = "*firefox"
-  var RecheckInterval = 1111
+  var RecheckInterval = 2222
 }
 
 class SeleniumWrapper {
@@ -43,11 +43,11 @@ class SeleniumWrapper {
     var socket: ServerSocket = null
     try {
       socket = new ServerSocket(SeleniumWrapper.DefaultPort);
-      println("Server is NOT running")
+      print(".")
       return false
     } catch {
       case e: IOException => {
-        println("Server is RUNNING")
+        println("ok")
         return true
       }
     } finally {
@@ -73,6 +73,7 @@ class SeleniumWrapper {
       new URL("http://localhost:" + SeleniumWrapper.DefaultPort + "/selenium-server/driver/?cmd=shutDownSeleniumServer").openConnection.getContent
       waitForServerStopped
     }
+    Thread.sleep(1450)
   }
 
 

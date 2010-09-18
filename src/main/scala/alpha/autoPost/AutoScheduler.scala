@@ -6,11 +6,11 @@ import actors.Actor
 object AutoScheduler {
   val DefaultInterval = 1000
 }
-class AutoScheduler(val timeProvider: TimeProvider, val getConfigs: () => List[Config], val collector: Actor, val interval: Int) extends Actor {
-  def this(timeProvider: TimeProvider, getConfigs: () => List[Config], collector: Actor) = this (timeProvider, getConfigs, collector, AutoScheduler.DefaultInterval)
+class AutoScheduler(val timeProvider: TimeProvider, val getConfigs: () => List[Section], val collector: Actor, val interval: Int) extends Actor {
+  def this(timeProvider: TimeProvider, getConfigs: () => List[Section], collector: Actor) = this (timeProvider, getConfigs, collector, AutoScheduler.DefaultInterval)
 
   def act {
-    val lastBeat = Map[Config, Long]()
+    val lastBeat = Map[Section, Long]()
     while (true) {
       val now = timeProvider.current
       getConfigs().filter(config => !lastBeat.contains(config))

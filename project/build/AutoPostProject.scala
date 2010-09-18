@@ -9,16 +9,25 @@ class AutoPostProject(info: ProjectInfo) extends ProguardProject(info) with Ecli
   var biblioMirror = "Biblio Mirror" at "http://mirrors.ibiblio.org/pub/mirrors/maven2/"
   val mavenRepo = "Maven Repo" at "http://repo2.maven.org/maven2"
   val azeckoskiRepo = "Azeckoski Repo" at "https://source.sakaiproject.org/maven2"
-  lazy val copySupplement = task {
-    def copyConfigs(target: Path) = FileUtilities.sync(info.projectPath / "configs", target, log)
+
+  lazy val copyTools = task {
     def copySelenium(target: Path) = FileUtilities.copyFile(info.projectPath / "lib_managed" / "scala_2.8.0" / "test" / "selenium-server-1.0.3-standalone.jar", target / "selenium-server.jar", log)
-    copyConfigs(info.projectPath / "target" / "scala_2.8.0" / "classes" / "configs")
-    copyConfigs(info.projectPath / "target" / "scala_2.8.0" / "configs")
     copySelenium(info.projectPath / "target" / "scala_2.8.0" / "classes" / "tools")
     copySelenium(info.projectPath / "target" / "scala_2.8.0" / "tools")
   }
+  lazy val copyTestSample = task {
+    def copyTestSections(target: Path) = FileUtilities.sync(info.projectPath / "test-sections", target, log)
+    copyTestSections(info.projectPath / "target" / "scala_2.8.0" / "classes" / "sections")
+    copyTestSections(info.projectPath / "target" / "scala_2.8.0" / "sections")
+  }
 
-  // override def testAction = super.testAction dependsOn (copySupplement)
+  lazy val copyRealSample = task {
+    def copyRealSections(target: Path) = FileUtilities.sync(info.projectPath / "real-sections", target, log)
+    copyRealSections(info.projectPath / "target" / "scala_2.8.0" / "classes" / "sections")
+    copyRealSections(info.projectPath / "target" / "scala_2.8.0" / "sections")
+  }
+
+  override def testAction = super.testAction dependsOn (copyTools, copyTestSample)
 
   val specs = "org.scalatest" % "scalatest" % "1.2" % "test"
   var snakeYaml = "org.yaml" % "snakeyaml" % "1.7"

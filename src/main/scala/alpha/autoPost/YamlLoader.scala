@@ -2,13 +2,15 @@ package alpha.autoPost
 
 import java.io._
 import scala.io._
+import collection.JavaConversions._
 import scala.collection.immutable.List
+import scala.collection.mutable.Map
 import scala.xml.parsing.XhtmlParser
 
 import org.yaml.snakeyaml.Yaml
 import util.matching.Regex
 
-object YamlLoader{
+object YamlLoader {
   val DefaultEncoding = "UTF-8"
 }
 
@@ -30,22 +32,23 @@ class YamlLoader {
       if (d.isDirectory) {
         var site = new Site
         site.name = d.getName
-        site.loginSteps = readSteps(new File(d.getCanonicalPath + "/loginSteps.html"))
-        site.postSteps = readSteps(new File(d.getCanonicalPath + "/postSteps.html"))
-        site.logoutSteps = readSteps(new File(d.getCanonicalPath + "/logoutSteps.html"))
+        site.loginSteps = readSiteSteps(new File(d.getCanonicalPath + "/loginSteps.html"))
+        site.postSteps = readSiteSteps(new File(d.getCanonicalPath + "/postSteps.html"))
+        site.logoutSteps = readSiteSteps(new File(d.getCanonicalPath + "/logoutSteps.html"))
+        site.specificInfo = readSpecificInfo(new File(d.getCanonicalPath + "/info.yml"))
         sites = site :: sites
       }
     }
     sites
   }
 
-  protected def readSteps(stepsFile: File):Array[Array[String]] = {
+  protected def readSiteSteps(stepsFile: File): Array[Array[String]] = {
     if (stepsFile.exists) {
       var result: List[Array[String]] = Nil
       val xml = XhtmlParser(Source.fromFile(stepsFile)(YamlLoader.DefaultEncoding))
-      for (row <- xml \"body" \ "table" \ "tbody" \ "tr"){
+      for (row <- xml \ "body" \ "table" \ "tbody" \ "tr") {
         var params: List[String] = Nil
-        for (cell <- row \ "td"){
+        for (cell <- row \ "td") {
           params = cell.text :: params
         }
         result = params.reverse.toArray :: result
@@ -55,15 +58,24 @@ class YamlLoader {
     else Array()
   }
 
-  def getConfigs: List[Config] = {
-    val configDir = new File(Environment.getJarPath + "/configs")
-    var list: List[Config] = Nil
+  protected def readSpecificInfo(infoFile: File): Map[String, String] = {
+    if (infoFile.exists) {
+      val inputStream = new FileInputStream(infoFile)
+      val map = yaml.load(inputStream).asInstanceOf[java.util.Map[String, String]]
+      return map
+    }
+    return Map[String, String]()
+  }
+
+  def getSections: List[Section] = {
+    val configDir = new File(Environment.getJarPath + "/sections")
+    var list: List[Section] = Nil
     for (f <- configDir.listFiles) {
       if (f.isDirectory)
         {
           val indexFile = new File(f.getCanonicalPath + "/index.yml")
           val inputStream = new FileInputStream(indexFile)
-          var cfg = yaml.load(inputStream).asInstanceOf[Config]
+          var cfg = yaml.load(inputStream).asInstanceOf[Section]
           cfg.name = f.getName
           val articlesDir = new File(f.getCanonicalPath + "/articles")
           if (articlesDir.exists)

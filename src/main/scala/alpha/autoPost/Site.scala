@@ -1,5 +1,8 @@
 package alpha.autoPost
 
+import collection.mutable.Map
+import collection.JavaConversions._
+
 /**
  * Created by IntelliJ IDEA.
  * User: phuongnd08
@@ -13,9 +16,19 @@ case class Site(var name: String) {
 
   def url = "http://" + name
 
-  var loginSteps: Array[Array[String]] = _;
-  var postSteps: Array[Array[String]] = _;
+  var section: Section = _
+  var loginSteps: Array[Array[String]] = _
+  var postSteps: Array[Array[String]] = _
   var logoutSteps: Array[Array[String]] = _
+  var specificInfo: Map[String, String] = _
+
+  def info: Map[String, String] = {
+    var map = Option(section).getOrElse(Section()).info
+    if (map != null)
+      Map[String, String]() ++ map ++ specificInfo
+    else
+      specificInfo.clone
+  }
 
   def description: List[String] = {
     var list = List("Description for " + name)
@@ -24,7 +37,7 @@ case class Site(var name: String) {
       var phaseList: List[String] = Nil
       if ((steps != null) && (steps.length > 0)) {
         phaseList = "\t- " + phaseName :: phaseList
-        steps.foreach(s => phaseList = "\t\t+ "+List(s.head, s.tail.mkString(", ")).mkString(" ") :: phaseList)
+        steps.foreach(s => phaseList = "\t\t+ " + List(s.head, s.tail.mkString(", ")).mkString(" ") :: phaseList)
       } else {
         phaseList = "\t- no " + phaseName :: phaseList
       }

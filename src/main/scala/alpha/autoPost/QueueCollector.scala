@@ -15,12 +15,12 @@ class QueueCollector extends Actor {
     var queue: List[Queue] = Nil
     while (true) {
       receive {
-        case config: Config => {
+        case config: Section => {
           val sites = Option(config.sites).getOrElse(List[Site]())
           sites.foreach(site => queue = queue ::: List(Queue(config, site)))
           println("" + sites.length + "site(s) of [" + config.name + "] queued")
         }
-        case (config: Config, site: Site) => {
+        case (config: Section, site: Site) => {
           queue = queue ::: List(Queue(config, site))
           println("[" + site.name + "] inside [" + config.name + "] queued")
         }

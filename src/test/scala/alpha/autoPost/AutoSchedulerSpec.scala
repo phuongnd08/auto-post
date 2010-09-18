@@ -27,23 +27,23 @@ class AutoSchedulerSpec extends Spec with MustMatchers with BeforeAndAfterEach w
     autoScheduler.getState must be(State.Terminated)
   }
 
-  it("must queue the config if execution time reached") {
+  it("must queue the section if execution time reached") {
     import org.mockito._
     import Mockito._
     import Matchers._
     val timeProvider = this.mock[TimeProvider]
     when(timeProvider.current).thenReturn(1, 1000, 2000)
-    val config1 = this.mock[Config]
+    val config1 = this.mock[Section]
     when(config1.shouldRunNow(1, 1000)).thenReturn(false)
     when(config1.shouldRunNow(1, 2000)).thenReturn(true)
-    val config2 = this.mock[Config]
+    val config2 = this.mock[Section]
     when(config2.shouldRunNow(1, 1000)).thenReturn(true)
     when(config2.shouldRunNow(1000, 2000)).thenReturn(false)
-    var receivedConfigs = List[Config]()
+    var receivedConfigs = List[Section]()
     val collector = actor {
       for (i <- 1 to 3)
         receiveWithin(100) {
-          case config: Config => receivedConfigs = receivedConfigs ::: List(config)
+          case config: Section => receivedConfigs = receivedConfigs ::: List(config)
           case _ =>
         }
     }

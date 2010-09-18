@@ -17,39 +17,44 @@ import scala.collection.JavaConversions._
  */
 
 class QueueSpec extends Spec with MustMatchers with BeforeAndAfterEach with MockitoSugar {
-  var config: Config = _
+  var section: Section = _
   var queue: Queue = _
+  var dumped: List[String] = _
+  var site: Site = _
 
   override def beforeEach {
-    config = new Config
-    config.info = Map("username" -> "phuongnd08", "password" -> "12345")
-    config.articles = List(Article("News 1", "This is content of news 1"))
-    val s1 = Site("5giay.vn")
-    s1.loginSteps = Array(Array("open", "/"), Array("type", "username", "@username"), Array("type", "password", "@password"))
-    s1.postSteps = Array(Array("open", "/post"), Array("type", "title", "@title"), Array("type", "body", "body\\\\@content"))
-    s1.logoutSteps = Array(Array("open", "/logout"))
-    config.sites = List(s1)
-    queue = Queue(config, s1)
+    section = new Section
+    section.info = Map("username" -> "phuongnd08")
+    section.articles = List(Article("News 1", "This is content of news 1"))
+    site = Site("5giay.vn")
+    site.specificInfo = Map("password" -> "12345")
+    site.loginSteps = Array(Array("open", "/"), Array("type", "username", "@username"), Array("type", "password", "@password"))
+    site.postSteps = Array(Array("open", "/post"), Array("type", "title", "@title"), Array("type", "body", "body\\\\@content"))
+    site.logoutSteps = Array(Array("open", "/logout"))
+    section.sites = List(site)
+    dumped = Nil
+    queue = Queue(section, site)
   }
   describe("realizedVariable") {
     it("should substitue @title variable as real value") {
-      Queue.realizedVariable("@title", config.info, config.articles(0)) must be("News 1")
+      Queue.realizedVariable("@title", site.info, section.articles(0)) must be("News 1")
     }
   }
   describe("realizedItem") {
     it("should realize all variable") {
-      Queue.realizedItem("user @username @password @title => @content", config.info, config.articles(0)) must be("user phuongnd08 12345 News 1 => This is content of news 1")
+      Queue.realizedItem("user @username @password @title => @content", site.info, section.articles(0)) must be("user phuongnd08 12345 News 1 => This is content of news 1")
     }
 
   }
   describe("realizedCommand") {
     it("should realized all command") {
-      Queue.realizedCommand(config.sites(0).postSteps(1), config.info, config.articles(0)) must be(Array[String]("type", "title", "News 1"))
+      println(site.info)
+      Queue.realizedCommand(section.sites(0).postSteps(1), site.info, section.articles(0)) must be(Array[String]("type", "title", "News 1"))
     }
   }
 
   describe("run") {
-    it("should execute all realized command in order") {
+    it("should execute all realized command in order and dump url out") {
       def executedCommands: List[List[String]] = {
         val processor = mock[CommandProcessor]
         import org.mockito._
@@ -68,7 +73,8 @@ class QueueSpec extends Spec with MustMatchers with BeforeAndAfterEach with Mock
             }
           })
 
-        queue.run(processor)
+        when(processor.getString(Matchers.eq("getLocation"), any[Array[String]] )).thenReturn("http://somewhere.com")
+        queue.run(processor, s => dumped = s :: dumped)
         commands.reverse
       }
       executedCommands must be(List(
@@ -80,6 +86,8 @@ class QueueSpec extends Spec with MustMatchers with BeforeAndAfterEach with Mock
         List("type", "body", "body\\\\This is content of news 1"),
         List("open", "/logout")
         ))
+
+      dumped must be(List("http://somewhere.com", "http://somewhere.com", "http://somewhere.com"))
     }
     it("should exit gracefully on exception") {
       val processor = mock[CommandProcessor]
@@ -90,7 +98,7 @@ class QueueSpec extends Spec with MustMatchers with BeforeAndAfterEach with Mock
       import Matchers._
       var commands: List[List[String]] = Nil
       when(processor.doCommand(anyString, any[Array[String]])).thenThrow(new RuntimeException)
-      queue.run(processor)
+      queue.run(processor, null)
     }
 
   }

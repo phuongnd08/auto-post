@@ -3,6 +3,8 @@ package alpha.autoPost
 import org.scalatest.matchers.MustMatchers
 import org.scalatest.{BeforeAndAfterEach, Spec}
 import org.joda.time.DateTime
+import scala.collection.JavaConversions._
+import collection.mutable.Map
 
 /**
  * Created by IntelliJ IDEA.
@@ -50,6 +52,16 @@ class SiteSpec extends Spec with MustMatchers with BeforeAndAfterEach {
         "\t- no post steps",
         "\t- logout steps",
         "\t\t+ open /logout"))
+    }
+  }
+
+  describe("info"){
+    it("must concatenate two maps"){
+      val section = Section()
+      section.info = Map("username" -> "phuongnd08", "password" -> "123456")
+      site.section = section
+      site.specificInfo = Map("username" -> "mrcold", "rememberMe" -> "true")
+      site.info must be (Map("username" -> "mrcold", "password" -> "123456", "rememberMe" -> "true"))
     }
   }
 }

@@ -10,4 +10,4 @@ project/boot/
 *.iws
 *.swp
 sbt_project_definition.iml
-
+/profiler/

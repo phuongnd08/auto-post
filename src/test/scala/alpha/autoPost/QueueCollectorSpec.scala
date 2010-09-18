@@ -20,11 +20,11 @@ class QueueCollectorSpec extends Spec with MustMatchers with BeforeAndAfterEach 
     collector.start
   }
   it("should send back all queued configuration") {
-    val s1 = Config()
+    val s1 = Section()
     s1.sites = List(Site("google.com"), Site("vnexpress.net"))
-    var s2 = Config()
+    var s2 = Section()
     s2.sites = List(Site("batdongsan.com"), Site("nhada.net"))
-    var s3 = Config()
+    var s3 = Section()
     collector ! s1
     collector ! (s2, s2.sites(0))
     collector ! s3

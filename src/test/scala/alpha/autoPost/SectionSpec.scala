@@ -13,40 +13,40 @@ import scala.collection.JavaConversions._
  * To change this template use File | Settings | File Templates.
  */
 
-class ConfigSpec extends Spec with MustMatchers with BeforeAndAfterEach {
-  var config: Config = _
+class SectionSpec extends Spec with MustMatchers with BeforeAndAfterEach {
+  var section: Section = _
 
   override def beforeEach {
-    config = new Config
-    config.name = "sample_1"
+    section = new Section
+    section.name = "sample_1"
   }
 
   describe("getBeaters") {
     it("must return properly if both every and fixedSchedule are set") {
-      config.every = "10:20"
-      config.fixedSchedule = Array("5:20", "6:30")
-      config.beaters must be(List(CyclicBeater((10 * 3600 + 20 * 60) * 1000), ScheduledBeater(5, 20), ScheduledBeater(6, 30)))
+      section.every = "10:20"
+      section.fixedSchedule = Array("5:20", "6:30")
+      section.beaters must be(List(CyclicBeater((10 * 3600 + 20 * 60) * 1000), ScheduledBeater(5, 20), ScheduledBeater(6, 30)))
     }
     it("must return properly if neither of every or fixedSchedule presents") {
-      config.every = null
-      config.fixedSchedule = null
-      config.beaters must be(List[Beater]())
+      section.every = null
+      section.fixedSchedule = null
+      section.beaters must be(List[Beater]())
     }
   }
 
   describe("shouldRunNow") {
     it("must be true if one beater shouldBeatNow") {
-      config.every = "20:00"
-      config.fixedSchedule = Array("5:20")
-      config.shouldRunNow(
+      section.every = "20:00"
+      section.fixedSchedule = Array("5:20")
+      section.shouldRunNow(
         new DateTime(2010, 9, 1, 5, 19, 0, 0).getMillis,
         new DateTime(2010, 9, 1, 5, 21, 0, 0).getMillis) must be(true)
     }
 
     it("must be false if none beater shouldBeatNow") {
-      config.every = "20:00"
-      config.fixedSchedule = Array("5:20")
-      config.shouldRunNow(
+      section.every = "20:00"
+      section.fixedSchedule = Array("5:20")
+      section.shouldRunNow(
         new DateTime(2010, 9, 1, 5, 21, 0, 0).getMillis,
         new DateTime(2010, 9, 1, 5, 31, 0, 0).getMillis) must be(false)
     }
@@ -54,12 +54,12 @@ class ConfigSpec extends Spec with MustMatchers with BeforeAndAfterEach {
 
   describe("description") {
     it("must render proper description if all properties assigned") {
-      config.every = "20:00"
-      config.fixedSchedule = Array("5:20", "7:20")
-      config.info = Map[String, String]("username" -> "phuong", "password" -> "123456", "rememberMe" -> "no")
-      config.articles = List(Article("a", "A"), Article("b", "B"))
-      config.sites = List(Site("5giay.vn"), Site("batdongsan.com"), Site("raovat.com"))
-      config.description must be(List(
+      section.every = "20:00"
+      section.fixedSchedule = Array("5:20", "7:20")
+      section.info = Map[String, String]("username" -> "phuong", "password" -> "123456", "rememberMe" -> "no")
+      section.articles = List(Article("a", "A"), Article("b", "B"))
+      section.sites = List(Site("5giay.vn"), Site("batdongsan.com"), Site("raovat.com"))
+      section.description must be(List(
         "Configuration for sample_1",
         "\t- info",
         "\t\t+ username: phuong",
@@ -80,9 +80,9 @@ class ConfigSpec extends Spec with MustMatchers with BeforeAndAfterEach {
     }
 
     it("must render proper description if many properties missed") {
-      config.every = null
-      config.articles = List[Article]()
-      config.description must be(List(
+      section.every = null
+      section.articles = List[Article]()
+      section.description must be(List(
         "Configuration for sample_1",
         "\t- no info",
         "\t- no repeated schedules",
@@ -94,8 +94,8 @@ class ConfigSpec extends Spec with MustMatchers with BeforeAndAfterEach {
 
   describe("briefDescription") {
     it("should render proper brief description if sites assigned") {
-      config.sites = List(Site("5giay.vn"), Site("batdongsan.com"), Site("raovat.com"))
-      config.briefDescription must be(List(
+      section.sites = List(Site("5giay.vn"), Site("batdongsan.com"), Site("raovat.com"))
+      section.briefDescription must be(List(
         "sample_1",
         "\t- sites",
         "\t\t+ 5giay.vn",
@@ -105,16 +105,16 @@ class ConfigSpec extends Spec with MustMatchers with BeforeAndAfterEach {
     }
 
     it("should render proper brief description if sites not assigned") {
-      config.sites = List()
-      config.briefDescription must be(List(
+      section.sites = List()
+      section.briefDescription must be(List(
         "sample_1",
         "\t- no sites"
         ))
     }
 
     it("should render proper brief description if sites assigned with empty list") {
-      config.sites = null
-      config.briefDescription must be(List(
+      section.sites = null
+      section.briefDescription must be(List(
         "sample_1",
         "\t- no sites"
         ))
@@ -124,8 +124,15 @@ class ConfigSpec extends Spec with MustMatchers with BeforeAndAfterEach {
 
   describe("siteByName") {
     it("must return None if no site found") {
-      config.sites = null
-      config.siteByName("some_name") must be(None)
+      section.sites = null
+      section.siteByName("some_name") must be(None)
+    }
+  }
+
+  describe("assign Sites") {
+    it("should assign section to site") {
+      section.sites = List(Site("5giay.vn"))
+      section.sites(0).section must be(section)
     }
   }
 }

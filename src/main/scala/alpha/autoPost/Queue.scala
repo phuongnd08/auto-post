@@ -37,27 +37,32 @@ object Queue {
   }
 }
 
-case class Queue(val config: Config, val site: Site) {
-  def run(processor: CommandProcessor) {
-    config.articles.foreach(a => {
-      for (steps <- Array(site.loginSteps, site.postSteps, site.logoutSteps))
-        Option(steps).getOrElse(Array[Array[String]]()).map(Queue.realizedCommand(_, config.info, a))
-                .foreach(arr =>
-          {
-            try {
-              processor.doCommand(arr.head, arr.tail)
-            } catch {
-              case ex: Exception => {
-                println("Exception while trying to run [" + arr.mkString(", ")+"]")
-                ex.printStackTrace
-                println("Execution on [" + site.name + "] of [" + config.name + "] terminated")
-                return
-              }
+case class Queue(val section: Section, val site: Site) {
+  def run(processor: CommandProcessor, dump: String => Unit) {
+    def safeExecute(steps: Array[Array[String]], a: Article): Boolean = {
+      Option(steps).getOrElse(Array[Array[String]]()).map(Queue.realizedCommand(_, site.info, a))
+              .foreach(arr =>
+        {
+          try {
+            processor.doCommand(arr.head, arr.tail)
+          } catch {
+            case ex: Exception => {
+              println("Exception while trying to run [" + arr.mkString(", ") + "]")
+              ex.printStackTrace
+              println("Execution on [" + site.name + "] of [" + section.name + "] terminated")
+              return false
             }
-          })
-
+          }
+        })
+      if (steps.length > 0)
+        dump(processor.getString("getLocation", Array[String]()))
+      return true
+    }
+    section.articles.foreach(a => {
+      for (steps <- Array(site.loginSteps, site.postSteps, site.logoutSteps))
+        if (!safeExecute(steps, a)) return
     })
   }
 
-  override def toString = "["+site.name+"]@["+config.name+"]"
+  override def toString = "[" + site.name + "]@[" + section.name + "]"
 }
