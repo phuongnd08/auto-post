@@ -8,4 +8,9 @@ package alpha.autoPost
  * To change this template use File | Settings | File Templates.
  */
 
-case class Article(var title: String, var content:String)
+object Article {
+  val BBProcessor = ru.perm.kefir.bbcode.BBProcessorFactory.getInstance.create
+}
+case class Article(var title: String, var content: String) {
+  def htmlContent = Article.BBProcessor.process(content)
+}

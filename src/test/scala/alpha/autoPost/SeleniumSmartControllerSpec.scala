@@ -69,9 +69,9 @@ class SeleniumSmartControllerSpec extends Spec with MustMatchers with MockitoSug
       }
       cor.conduct(100, 60)
       println(time)
-      time(0) must be > time(1)
-      time(1) must be > time(2)
-      time(2) must be > time(3)
+      time(0) must be >= time(1)
+      time(1) must be >= time(2)
+      time(2) must be >= time(3)
     }
   }
   describe("prune") {

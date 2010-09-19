@@ -22,6 +22,7 @@ object Queue {
       return variableName match {
         case "title" => article.title
         case "content" => article.content
+        case "htmlContent" => article.htmlContent
         case _ => if (info.contains(variableName)) info(variableName) else variable
       }
     }
@@ -35,27 +36,27 @@ object Queue {
   def realizedCommand(command: Array[String], info: Map[String, String], article: Article): Array[String] = {
     command.map(cmd => realizedItem(cmd, info, article))
   }
-}                          Nguy
+}
 
 case class Queue(val section: Section, val site: Site) {
   def run(processor: CommandProcessor, dump: String => Unit) {
     def safeExecute(steps: Array[Array[String]], a: Article, dumpLocation: Boolean): Boolean = {
       Option(steps).getOrElse(Array[Array[String]]()).map(Queue.realizedCommand(_, site.info, a))
-              .foreach(arr =>
-          try {
-            processor.doCommand(arr.head, arr.tail)
-          } catch {
-            case ex: Exception => {
-              println("Exception while trying to run [" + arr.mkString(", ") + "]")
-              ex.printStackTrace
-              println("Execution on [" + site.name + "] of [" + section.name + "] terminated")
-              return false
-            }
+              .foreach(arr => {
+        try {
+          processor.doCommand(arr.head, arr.tail)
+        } catch {
+          case ex: Exception => {
+            println("Exception while trying to run [" + arr.mkString(", ") + "]")
+            ex.printStackTrace
+            println("Execution on [" + site.name + "] of [" + section.name + "] terminated")
+            return false
           }
-        })
+        }
+      })
       if (dumpLocation)
         dump(processor.getString("getLocation", Array[String]()))
-      return true
+      true
     }
     section.articles.foreach(a => {
       for (steps <- Array(site.loginSteps, site.postSteps, site.logoutSteps))

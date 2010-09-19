@@ -25,11 +25,11 @@ class QueueSpec extends Spec with MustMatchers with BeforeAndAfterEach with Mock
   override def beforeEach {
     section = new Section
     section.info = Map("username" -> "phuongnd08")
-    section.articles = List(Article("News 1", "This is content of news 1"))
+    section.articles = List(Article("News 1", "This is content of [b]news 1[/b]"))
     site = Site("5giay.vn")
     site.specificInfo = Map("password" -> "12345")
     site.loginSteps = Array(Array("open", "/"), Array("type", "username", "@username"), Array("type", "password", "@password"))
-    site.postSteps = Array(Array("open", "/post"), Array("type", "title", "@title"), Array("type", "body", "body\\\\@content"))
+    site.postSteps = Array(Array("open", "/post"), Array("type", "title", "@title"), Array("type", "//body", "@content"))
     site.logoutSteps = Array(Array("open", "/logout"))
     section.sites = List(site)
     dumped = Nil
@@ -42,13 +42,12 @@ class QueueSpec extends Spec with MustMatchers with BeforeAndAfterEach with Mock
   }
   describe("realizedItem") {
     it("should realize all variable") {
-      Queue.realizedItem("user @username @password @title => @content", site.info, section.articles(0)) must be("user phuongnd08 12345 News 1 => This is content of news 1")
+      Queue.realizedItem("user @username @password @title => @content html => @htmlContent", site.info, section.articles(0)) must be("user phuongnd08 12345 News 1 => This is content of [b]news 1[/b] html => This is content of <span style=\"font-weight:bold;\">news 1</span>")
     }
 
   }
   describe("realizedCommand") {
     it("should realized all command") {
-      println(site.info)
       Queue.realizedCommand(section.sites(0).postSteps(1), site.info, section.articles(0)) must be(Array[String]("type", "title", "News 1"))
     }
   }
@@ -83,7 +82,7 @@ class QueueSpec extends Spec with MustMatchers with BeforeAndAfterEach with Mock
         List("type", "password", "12345"),
         List("open", "/post"),
         List("type", "title", "News 1"),
-        List("type", "body", "body\\\\This is content of news 1"),
+        List("type", "//body", "This is content of [b]news 1[/b]"),
         List("open", "/logout")
         ))
 

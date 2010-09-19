@@ -21,7 +21,7 @@ class AutoSchedulerSpec extends Spec with MustMatchers with BeforeAndAfterEach w
     autoScheduler = new AutoScheduler(new TimeProvider, () => Nil, null, 100)
     autoScheduler.start
     Thread.sleep(100)
-    autoScheduler.getState must be(State.TimedBlocked)
+    autoScheduler.getState must not be(State.Terminated)
     autoScheduler ! "exit"
     Thread.sleep(100)
     autoScheduler.getState must be(State.Terminated)
