@@ -35,14 +35,13 @@ object Queue {
   def realizedCommand(command: Array[String], info: Map[String, String], article: Article): Array[String] = {
     command.map(cmd => realizedItem(cmd, info, article))
   }
-}
+}                          Nguy
 
 case class Queue(val section: Section, val site: Site) {
   def run(processor: CommandProcessor, dump: String => Unit) {
-    def safeExecute(steps: Array[Array[String]], a: Article): Boolean = {
+    def safeExecute(steps: Array[Array[String]], a: Article, dumpLocation: Boolean): Boolean = {
       Option(steps).getOrElse(Array[Array[String]]()).map(Queue.realizedCommand(_, site.info, a))
               .foreach(arr =>
-        {
           try {
             processor.doCommand(arr.head, arr.tail)
           } catch {
@@ -54,13 +53,13 @@ case class Queue(val section: Section, val site: Site) {
             }
           }
         })
-      if (steps.length > 0)
+      if (dumpLocation)
         dump(processor.getString("getLocation", Array[String]()))
       return true
     }
     section.articles.foreach(a => {
       for (steps <- Array(site.loginSteps, site.postSteps, site.logoutSteps))
-        if (!safeExecute(steps, a)) return
+        if (!safeExecute(steps, a, steps eq site.postSteps)) return
     })
   }
 

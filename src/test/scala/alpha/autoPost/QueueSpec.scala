@@ -87,7 +87,7 @@ class QueueSpec extends Spec with MustMatchers with BeforeAndAfterEach with Mock
         List("open", "/logout")
         ))
 
-      dumped must be(List("http://somewhere.com", "http://somewhere.com", "http://somewhere.com"))
+      dumped must be(List("http://somewhere.com"))
     }
     it("should exit gracefully on exception") {
       val processor = mock[CommandProcessor]

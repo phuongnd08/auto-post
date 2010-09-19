@@ -39,7 +39,7 @@ class YamlLoader {
         sites = site :: sites
       }
     }
-    sites
+    sites                    
   }
 
   protected def readSiteSteps(stepsFile: File): Array[Array[String]] = {
